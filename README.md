@@ -29,3 +29,5 @@ Lancez le bot avec la commande :
 ##  Contribuer 
 
 Les contributions sont les bienvenues ! Veuillez créer une pull request ou ouvrir une issue pour discuter de ce que vous aimeriez changer.
+
+![jesus](https://github.com/Elieleche/HolyHelper/assets/91844461/c73dc122-072d-4de2-84f5-892d5cd80c56)
