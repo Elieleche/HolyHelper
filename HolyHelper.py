@@ -16,6 +16,7 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="/", intents=intents)
 
+prayer_intentions = []
 
 def load_verses(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -49,6 +50,21 @@ async def verset(interaction: discord.Interaction):
     embed = discord.Embed(title=book_and_verse, description=verse_text, color=0x00ff00)
     embed.set_footer(text="Envoyé par HolyHelper")
     await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="intention", description="Soumet une intention de prière de manière privée.")
+async def intention(interaction: discord.Interaction, message: str):
+    prayer_intentions.append((interaction.user.name, message))
+    await interaction.response.send_message("Ton intention de prière a été reçue et restera privée.", ephemeral=True)
+
+@bot.tree.command(name="prions", description="Reçois toutes les intentions de prière.")
+async def prions(interaction: discord.Interaction):
+    if not prayer_intentions:
+        await interaction.response.send_message("Il n'y a pas d'intentions de prière pour le moment.", ephemeral=True)
+    else:
+        intentions_list = "\n".join([f"{name}: {message}" for name, message in prayer_intentions])
+        await interaction.user.send(f"Voici les intentions de prière des autres :\n\n{intentions_list}")
+        await interaction.response.send_message("Les intentions de prière t'ont été envoyées en DM.", ephemeral=True)
+
 
 @bot.event
 async def on_message(message):
