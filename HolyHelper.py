@@ -51,19 +51,23 @@ async def verset(interaction: discord.Interaction):
     embed.set_footer(text="Envoyé par HolyHelper")
     await interaction.response.send_message(embed=embed)
 
+prayer_intentions = {}
+
 @bot.tree.command(name="intention", description="Soumet une intention de prière de manière privée.")
 async def intention(interaction: discord.Interaction, message: str):
-    prayer_intentions.append((interaction.user.name, message))
+    user_id = interaction.user.id
+    prayer_intentions[user_id] = message
     await interaction.response.send_message("Ton intention de prière a été reçue et restera privée.", ephemeral=True)
 
 @bot.tree.command(name="prions", description="Reçois toutes les intentions de prière.")
 async def prions(interaction: discord.Interaction):
-    if not prayer_intentions:
-        await interaction.response.send_message("Il n'y a pas d'intentions de prière pour le moment.", ephemeral=True)
+    user_id = interaction.user.id
+    user_intention = prayer_intentions.get(user_id)
+    if not user_intention:
+        await interaction.response.send_message("Tu n'as pas encore soumis d'intention de prière.", ephemeral=True)
     else:
-        intentions_list = "\n".join([f"{name}: {message}" for name, message in prayer_intentions])
-        await interaction.user.send(f"Voici les intentions de prière des autres :\n\n{intentions_list}")
-        await interaction.response.send_message("Les intentions de prière t'ont été envoyées en DM.", ephemeral=True)
+        await interaction.response.send_message(f"{interaction.user.mention}, voici ton intention de prière :\n\n{user_intention}", ephemeral=True)
+
 
 
 @bot.event
