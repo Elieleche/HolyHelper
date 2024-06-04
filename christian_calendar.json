@@ -1,0 +1,35 @@
+{
+    "fetes_catholiques": [
+      {
+        "date": "15-08",
+        "nom": "Assomption",
+        "description": "Le jour de l'Assomption, nous célébrons la montée au Ciel de la Vierge Marie, mère de Jésus, en corps et en âme.",
+        "signification": "La fête de l'Assomption rappelle la place spéciale de Marie dans le plan divin de salut. En rejoignant son fils Jésus au Ciel, Marie devient un modèle pour tous les chrétiens, montrant la voie vers la gloire éternelle."
+      },
+      {
+        "date": "01-11",
+        "nom": "Toussaint",
+        "description": "La Toussaint est la fête de tous les saints du Ciel, connus et inconnus, célébrant leur sainteté et leur victoire sur le péché et la mort.",
+        "signification": "La Toussaint nous rappelle que la sainteté est accessible à tous, que chaque personne est appelée à devenir un saint en vivant selon la volonté de Dieu. C'est une invitation à l'imitation des saints et à la recherche de la sainteté dans notre propre vie."
+      },
+      {
+        "date": "01-12",
+        "nom": "Avent",
+        "description": "L'Avent est une période de quatre semaines de préparation spirituelle pour Noël, durant laquelle les chrétiens se préparent à la venue du Christ dans le monde.",
+        "signification": "L'Avent nous invite à la réflexion, à la prière et à la repentance, en préparant nos cœurs à accueillir Jésus. C'est un temps d'attente joyeuse et d'espérance, où nous nous rappelons l'incarnation de Dieu et attendons avec anticipation sa venue dans nos vies."
+      },
+      {
+        "date": "08-12",
+        "nom": "Immaculée Conception",
+        "description": "Le 8 décembre, nous célébrons la conception de Marie sans péché originel, préparant ainsi le chemin pour la naissance de Jésus.",
+        "signification": "L'Immaculée Conception témoigne de la pureté et de la sainteté de Marie, qui a été choisie par Dieu pour devenir la mère de son Fils. Cette fête nous rappelle le rôle unique de Marie dans le plan de rédemption et son importance en tant que modèle de foi et de pureté pour les croyants."
+      },
+      {
+        "date": "25-12",
+        "nom": "Noël",
+        "description": "Noël marque la naissance de Jésus Christ, Fils de Dieu, dans l'humilité d'une étable à Bethléem, annonçant ainsi la venue du Sauveur dans le monde.",
+        "signification": "Noël est le moment où Dieu s'incarne dans l'humanité, apportant la lumière et l'espoir à un monde plongé dans les ténèbres du péché. C'est une occasion de joie et de célébration, où nous nous rappelons l'amour inconditionnel de Dieu pour l'humanité et la promesse de salut offerte à travers son Fils."
+      }
+    ]
+  }
+  

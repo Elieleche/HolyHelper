@@ -4,15 +4,42 @@ import random
 import json
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
+CHANNEL_HOLY = os.getenv('CHANNEL')
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 intents.members = True
+
+CONFIG_FILE = 'server_configs.json'
+
+def load_configs():
+    try:
+        with open(CONFIG_FILE, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+def save_configs(configs):
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(configs, f, indent=4)
+
+def get_server_config(guild_id):
+    configs = load_configs()
+    return configs.get(str(guild_id), {})
+
+def update_server_config(guild_id, key, value):
+    configs = load_configs()
+    guild_id = str(guild_id)
+    if guild_id not in configs:
+        configs[guild_id] = {}
+    configs[guild_id][key] = value
+    save_configs(configs)
 
 bot = commands.Bot(command_prefix="/", intents=intents)
 
@@ -29,18 +56,30 @@ verses = load_verses('versets.json')
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
     daily_verse.start()
+    check_fete_task.start()
     await bot.tree.sync()
     print("Slash commands synchronized.")
+
+
+@tasks.loop(hours=24)
+async def check_fete_task():
+    await check_fete(bot)
 
 @tasks.loop(hours=24)
 async def daily_verse():
     for guild in bot.guilds:
-        for channel in guild.text_channels:
-            if channel.permissions_for(guild.me).send_messages:
-                role = discord.utils.get(channel.guild.roles, name="Chrétien")
+        config = get_server_config(guild.id)
+        channel_id = config.get('daily_verse_channel')
+        role_id = config.get('notification_role')
+        
+        if channel_id and role_id:
+            channel = bot.get_channel(channel_id)
+            role = guild.get_role(role_id)
+            
+            if channel and role:
                 verse = random.choice(verses)
                 await channel.send(f"{role.mention} Voici le verset du jour : {verse}")
-                break
+
 
 @bot.tree.command(name="verset", description="Affiche un verset biblique au hasard")
 async def verset(interaction: discord.Interaction):
@@ -67,8 +106,6 @@ async def prions(interaction: discord.Interaction):
         await interaction.response.send_message("Tu n'as pas encore soumis d'intention de prière.", ephemeral=True)
     else:
         await interaction.response.send_message(f"{interaction.user.mention}, voici ton intention de prière :\n\n{user_intention}", ephemeral=True)
-
-
 
 @bot.event
 async def on_message(message):
@@ -194,6 +231,19 @@ quiz_questions = [
 
 user_scores = {}
 
+@bot.tree.command(name="set_channel", description="Définir le canal pour les versets quotidiens")
+@commands.has_permissions(administrator=True)
+async def set_channel(interaction: discord.Interaction, channel: discord.TextChannel):
+    update_server_config(interaction.guild.id, 'daily_verse_channel', channel.id)
+    await interaction.response.send_message(f"Le canal des versets quotidiens a été défini sur {channel.mention}", ephemeral=True)
+
+@bot.tree.command(name="set_role", description="Définir le rôle à notifier")
+@commands.has_permissions(administrator=True)
+async def set_role(interaction: discord.Interaction, role: discord.Role):
+    update_server_config(interaction.guild.id, 'notification_role', role.id)
+    await interaction.response.send_message(f"Le rôle de notification a été défini sur {role.name}", ephemeral=True)
+
+
 @bot.tree.command(name="quiz", description="Commence un quiz chrétien")
 async def quiz(interaction: discord.Interaction):
     question_data = random.choice(quiz_questions)
@@ -236,6 +286,44 @@ async def score(interaction: discord.Interaction):
     user_id = interaction.user.id
     score = user_scores.get(user_id, 0)
     await interaction.response.send_message(f"Votre score est: {score} point(s).")
+
+with open('christian_calendar.json', 'r', encoding='utf-8') as file:
+    fetes_catholiques = json.load(file)['fetes_catholiques']
+
+from discord.ext import tasks
+
+@tasks.loop(hours=24)
+async def check_fete_task():
+    for guild in bot.guilds:
+        await check_fete(bot, guild.id)
+
+async def check_fete(client, guild_id):
+    current_date = datetime.now().strftime('%m-%d')
+    print("Date actuelle :", current_date)
+    
+    config = get_server_config(guild_id)
+    channel_id = config.get('daily_verse_channel')
+    
+    if not channel_id:
+        print(f"Aucun canal configuré pour le serveur {guild_id}")
+        return
+
+    channel = client.get_channel(channel_id)
+
+    if not channel:
+        print(f"Canal non trouvé pour le serveur {guild_id}")
+        return
+
+    for fete in fetes_catholiques:
+        if fete['date'] == current_date:
+            embed = discord.Embed(title=f"Fête catholique du jour : {fete['nom']}", color=0xFF5733)
+            embed.add_field(name="Description", value=fete['description'], inline=False)
+            embed.add_field(name="Signification", value=fete['signification'], inline=False)
+            await channel.send(embed=embed)
+            break
+    else:
+        print("Aucune fête aujourd'hui")
+
 
 
 bot.run(TOKEN)
